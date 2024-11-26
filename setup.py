@@ -46,7 +46,7 @@ def find_package_data(where='.', package='', exclude=standard_exclude, exclude_d
 setup(name='docassemble.SC1',
       version='11.20.24',
       description=('A docassemble extension.'),
-      long_description='# docassemble.SC1\n\nA docassemble extension.\n\n## Author\n\nMelissa Bento, MBento@akcourts.gov\n\n',
+      long_description='# docassemble.SC1\r\n\r\nA docassemble extension.\r\n\r\n## Author\r\n\r\nMelissa Bento, MBento@akcourts.gov\r\n\r\n',
       long_description_content_type='text/markdown',
       author='Melissa Bento',
       author_email='MBento@akcourts.gov',

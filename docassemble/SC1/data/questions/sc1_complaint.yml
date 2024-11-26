@@ -1,6 +1,7 @@
 ---
 include:
   - docassemble.AssemblyLine:assembly_line.yml
+  - docassemble.ALToolbox:escape_button.yml
 ---
 metadata:
   title: >-
@@ -12,39 +13,26 @@ metadata:
   can_I_use_this_form: |
     If you are a sdf, you can use this interview to ____________.
   before_you_start: |
-    This interview will help you file a Small Claims, $2500 or less:.
-    
-    Before you get started, please gather:
-    
-    1. 
-    1. 
-    1. 
-    
-    When you are finished, you will need to:
-    
-    1. 
-    1.
+    This interview will help you file a Small Claims, $2500 or less
   maturity: production
   estimated_completion_minutes: 10
   estimated_completion_delta: 5
   tags: []
   authors:
-    - Alaska Court System MSB
+    - Alaska Court System
   original_form: []
   original_form_published_on: 2024-10-01
-  allowed_courts: 
-    - "Small Claims"
+  allowed_courts: []
   typical_role: "plaintiff"
   al_weaver_version: "1.11.0"
-  generated_on: "2024-11-19"
+  generated_on: "2024-11-08"
   languages:
     - en
-  jurisdiction: NAM-US-US+MA
-  review_date: 2024-11-19
+  jurisdiction: NAM-US-US+AK
+  review_date: 2024-11-08
   form_titles:
     - SC-1 Complaint
-  form_numbers:
-    - SC-1
+  form_numbers: []
   update_notes: |
 ---
 code: |
@@ -59,32 +47,34 @@ code: |
   github_repo_name =  'docassemble-Sc1Complaint'
 ---
 code: |
-  interview_short_title = "File a Small Claims, $2500 or less:"
----
-code: |
-  al_form_type = "other" 
+  interview_short_title = "File a Small Claims, $2500 or less"
 ---
 objects:
   - users: ALPeopleList.using(there_are_any=True)
----
-sections:
-  - review_sc1_complaint: Review your answers
+#---
+#sections:
+#  - review_sc1_complaint: Review your answers
 ---
 #################### Interview order #####################
+mandatory: True
 comment: |
   Controls order and branching logic for questions specific to this form
-id: interview_order_sc1_complaint
+id: Interview Order
 code: |
   # Set the allowed courts for this interview
-  allowed_courts = ['Other', 'Small Claims']
+  allowed_courts = []
   nav.set_section("review_sc1_complaint")
   user_role = "plaintiff"
   user_ask_role = "plaintiff"
-  courtLocation
+  sc1_intro
+  def_first_name
   corp
-  principal
-  set_progress(20)
-  nearLocation
+  corp_tax
+  users[0].name.first
+  user_email
+  amount_def_owes
+  reason_def_owes
+  def_notified
   res
   signature
   set_progress(40)
@@ -93,76 +83,94 @@ code: |
   defendants.gather()
   interview_order_sc1_complaint = True
 ---
-###################### Main order ######################
-#comment: |
-#  This block includes the logic for standalone interviews.
-#  Delete mandatory: True to include in another interview
-#mandatory: True
-#code: |
-#  al_intro_screen
-#  sc1_complaint_intro
-#  interview_order_sc1_complaint
-#  signature_date
-#  # Store anonymous data for analytics / statistics
-#  store_variables_snapshot(
-#      persistent=True,
-#      data={
-#          "zip": showifdef("users[0].address.zip"),
-#          "reached_interview_end": True,
-#      },
-#  )
-#  sc1_complaint_download
----
 id: SC-1 Intro Screen
 continue button field: sc1_intro
 question: |
-  ##CR-234 Online Secured Cash Bond Posting Agreement
+  ##SC-1 Complaint
 subquestion: |
-  ## Instructions:
+  ## Instructions UPDATE FOR SC-1:
   1.  Answer the interview questions.  Your responses to the questions will be used to create the form.
   2. At the end of the interview, hit “submit” to send your form directly to the court for online bail processing.  You will also be sent a copy of the form to the email address you provide.
 ---
-id: Screen one
+id: Defendant Inforamtion
 question: |
-  Screen one
+  Who are you filing a small claims against?
 fields:
-  - "Courtlocation": courtLocation
-    maxlength: 24
-  - "Caseno": caseNo
-    maxlength: 16
+  - First Name: def_first_name
+    required: True
+  - Middle Name: def_middle_name
+    required: False
+  - Last Name: def_last_name
+    required: True
 ---
-id: Screen two
+id: Corporation
 question: |
-  Screen two
-fields:
-  - "Corp": corp
-    datatype: yesno
-  - "Notcorp": notCorp
-    datatype: yesno
+  As the plaintiff are you representing a coorporation?
+yesno: corp
 ---
-id: Screen three
+id: Representing a corporation
 question: |
-  Screen three
+  Has the corporation paid its taxes due the state and filed its required reports?
+yesno: corp_tax
+---
+id: User's Information
+question: |
+  Fill in the following information about yourself:
 fields:
-  - "Principal": principal
-    maxlength: 20
-  - "Resultof2": resultOf2
+  - First Name: users[0].name.first
+    required: True
+  - Middle Name: users[0].name.middle
+    required: False
+  - Last Name: users[0].name.last
+    required: True
+---
+id: User's Information 2
+question: |
+  Fill in your information:
+fields:
+  - Mailing Address: users[0].mailing_address.on_one_line
+    required: True
     input type: area
-    maxlength: 234
-  - "Dateoccured": dateOccured
-    maxlength: 14
+    hint: street address, state, zip
+  - Email: user_email
+    required: True
+  - Phone: user_cell_phone
+    required: false
 ---
-id: Screen four
+id: Amount Defendant Owes
 question: |
-  Screen four
+  How much does ${ def_first_name } owe, including interest and court costs?
 fields:
-  - "Nearlocation": nearLocation
-    maxlength: 20
-  - "Hashasnot": HasHasNot
-    input type: radio
-    choices:
-      - Choice2: Choice2
-      - Choice1: Choice1
+  - Amount Owed: amount_def_owes
+    datatype: currency
+---
+id: Reason Defendant Owes
+question: |
+  Why does ${ def_first_name } owe $${ amount_def_owes }?
+fields:
+  - Reason: reason_def_owes
+    required: True
+    input type: area
+    maxlength: 3000
+  - Approximate Location: location_owed
+  - Approximate Date: reason_date
+---
+id: notified Defenant
+question: |
+  Have you notified ${ def_first_name } in writing what is owed?
+yesno: def_notified
+#---
+#id: unkown
+#question: |
+#  How much does ${ def_first_name } owe, including interest and court costs?
+#fields:
+#  - "Nearlocation": nearLocation
+#    maxlength: 20
+#  - "Hashasnot": HasHasNot
+#    input type: radio
+#    choices:
+#      - Choice2: Choice2
+#      - Choice1: Choice1
 ---
 id: Screen five
 question: |
