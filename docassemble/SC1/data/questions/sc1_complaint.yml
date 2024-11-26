@@ -75,6 +75,9 @@ code: |
   amount_def_owes
   reason_def_owes
   def_notified
+  sc_procedure
+  reasonable_location
+  nearest_court
   res
   signature
   set_progress(40)
@@ -155,10 +158,41 @@ fields:
   - Approximate Location: location_owed
   - Approximate Date: reason_date
 ---
-id: notified Defenant
+id: nNtified Defenant
 question: |
   Have you notified ${ def_first_name } in writing what is owed?
 yesno: def_notified
+---
+id: Give Up Rights To Jury Trial
+question: |
+  You are requesting a small claims procedure and you are giveing up the right to a jury trial, formal procedure, and to collect more than $10,000 in principal amount (unless the court decides to apply the formal Rules of Civil Procedure). 
+fields:
+  - I understand and agree.: sc_procedure
+    datatype: yesnowide
+validation code: |
+  if not sc_procedure:
+    validation_error("You cannot continue until you agree.")
+---
+id: Reasonable Loction
+question: |
+  ####This action is filed at a court that will not cause unnecessay expense or inconvenience to ${ def_first_name }.      
+fields:
+  - I understand and agree.: reasonable_location
+    datatype: yesnowide
+validation code: |
+  if not reasonable_location:
+    validation_error("You cannot continue until you agree.")
+---
+id: Reasonable Loction 2
+question: |
+   The court is nearest to:
+fields:
+  - no label: nearest_court
+    datatype: radio
+    choices:
+      - ${ def_first_name }'s residence or place of employment.
+      - Where ${ def_first_name } caused personal injury to Plaintiff or damage to Plaintiff’s property.
+      - Where ${ def_first_name } does or solicits business.
 #---
 #id: unkown
 #question: |
